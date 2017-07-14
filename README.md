@@ -7,6 +7,27 @@ File List
 |plot.py | draw      |
 Function
 =============
+plot.py
+----------
+######plot
+```Python
+def plot(file, x, y, xlim=None, ylim=None, name=None, align="top", save="img.png", xlabel="", ylabel="", title="", savetxt=None):
+    """
+    :param file: txt file
+    :param x: [[str:pattern name, axis], [], [], ...], if pattern has more than one {num}, 
+              axis(optional) is needed to identify one {num} you want
+    :param y: same as x
+    :param xlim: x axis value limitation
+    :param ylim: same as xlim
+    :param name: legend name, len(x) == len(y) == len(name)
+    :param align: if lenth of x/y pare in extracted number not equal, align at top or bottom
+    :param save: save data to txt
+    :return:
+    """
+```
+e.g.   
+See example/ploy.py.example
+![Eexample img](/example/plt.png)
 util.py
 ----------
 ######num_extractor
