@@ -1,0 +1,15 @@
+from dltool.plot import plot
+import numpy as np
+
+file = r"C:\Users\haozhang\Desktop\furniture_v1.txt"
+
+pstep = r"Iteration {num}, loss = {num}"
+ploss = r"Train net output #2: loss3/loss3 = {num}"
+pteststep = r"Iteration {num}, Testing net"
+ptestloss = r"Test net output #0: loss1/loss1 = {num}"
+ptestaccr = "Test net output #7: loss3/top-1 = {num}"
+
+
+
+plot(file, [[pstep, [0]], pteststep, pteststep], [ploss, ptestloss, ptestaccr],
+     xlim=(0, 10000), name=["train", "test", "acc"], align="top", savetxt="save.txt")
