@@ -9,6 +9,7 @@ Function
 =============
 util.py
 ----------
+######num_extractor
 ```Python
 def num_extractor(lines, pattern, recall=[-1]):
     :param lines: a string
@@ -39,4 +40,36 @@ I0710 07:38:56.075686 35476 solver.cpp:640] Iteration 399000, lr = 0.00442368\n
 "
 
 return = np.array([0.0158956, 0.0173632, 0.0146371, 0.00442368])
+```
+***************************
+#####parse_json
+```Python
+def parse_json(string, path):
+    """
+    :param string: string to parse, list or str
+    :param path: dict path a/b/c
+    :return: a list or item
+    """
+```
+e.g.:   
+```Python
+path = "_id/$oid"
+string = 
+[r"{"_id":{"$oid":"595d97982782a600179b3fba"},"hit_id":"/201502/ec/kTi0ixKy2RewsnDJbEmE91k8XMynMOSY.jpg"}",
+ r"{"_id":{"$oid":"59asdfasdfasdfasdfasdfff"},"hit_id":"/201502/ec/kTi0ixKasdfasferwqeyuytiewtrggfY.jpg"}"]
+
+return = [r"595d97982782a600179b3fba", r"59asdfasdfasdfasdfasdfff"]
+```
+***************************
+#####parse_str
+```Python
+def parse_str(string, pattern=" ", type="list", match_num=100000, key_idx=0):
+    """
+    :param string: string to parse, list
+    :param pattern: split pattern
+    :param type: either "list" or "dict", return a list or a diction
+    :param match_num: split times
+    :param key_idx: which idx is key value when type=="dict"
+    :return: a list or dict
+    """
 ```
