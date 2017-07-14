@@ -26,7 +26,7 @@ def plot(file, x, y, xlim=None, ylim=None, name=None, align="top", save="img.png
     """
 ```
 e.g.   
-See example/ploy.py.example
+See example/ploy.py.example    
 ![Eexample img](/example/plt.png)
 util.py
 ----------
