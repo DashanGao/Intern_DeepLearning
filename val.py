@@ -16,9 +16,9 @@ class DetectorVal:
             print("0 - Ignore")
             for idx, item in enumerate(snap_list):
                 print(str(idx + 1) + " - " + item)
-            select = int(raw_input("Which? Input : "))
-            if select != 0:
-                self.snapshot_file = snap_list[select - 1]
+            select = raw_input("Which? Input : (0)")
+            if select != '':
+                self.snapshot_file = snap_list[int(select) - 1]
         if os.path.isfile(self.snapshot_file):
             with open(self.snapshot_file, 'r') as f:
                 record = [json.loads(x) for x in f]
@@ -31,6 +31,10 @@ class DetectorVal:
         return img_file not in self.img_file
 
     def record(self, img_file, gt_cls, gt_bbox, cls, bbox, score):
+        gt_bbox = [[int(y)for y in x] for x in gt_bbox]
+        bbox = [[int(y)for y in x] for x in bbox]
+        gt_cls = [str(x) for x in gt_cls]
+        cls = [str(x) for x in cls]
         new_record = {}
         new_record['item'] = img_file
         confidence = np.array([x for x in score], dtype=np.float)
@@ -38,7 +42,7 @@ class DetectorVal:
         cls = [cls[x] for x in sorted_ind]
         bbox = [bbox[x] for x in sorted_ind]
         score = [score[x] for x in sorted_ind]
-        new_record['out'] = [{'cls': cls[i], 'bbox': bbox[i], 'score': score[i]} for i in range(len(score))]
+        new_record['out'] = [{'cls': cls[i], 'bbox': bbox[i], 'score': float(score[i])} for i in range(len(score))]
         new_record['gt'] = [{'cls': gt_cls[i], 'bbox': gt_bbox[i]} for i in range(len(gt_cls))]
         self.fd.write(json.dumps(new_record) + "\n")
         self.fd.flush()
@@ -54,11 +58,11 @@ class DetectorVal:
             for j in range(len(gt)):
                 gt[j]['result_cls'] = -1
                 gt[j]['result_bbox'] = -1
-
+            if len(out) == 0:
+                continue
             gt_bbox = np.array([x['bbox'] for x in gt], dtype=np.float)
             out_bbox = np.array([x['bbox'] for x in out], dtype=np.float)
             out_score = np.array([x['score'] for x in out], dtype=np.float)
-
             for idx in range(len(gt)):
                 xmin = np.maximum(gt_bbox[idx, 0], out_bbox[:, 0])
                 ymin = np.maximum(gt_bbox[idx, 1], out_bbox[:, 1])
@@ -72,7 +76,6 @@ class DetectorVal:
                 overlap = inters / uni
                 ovmax = np.max(overlap)
                 jmax = np.argmax(overlap)
-
                 if ovmax > bbox_threshold:
                     gt[idx]['result_bbox'] = True
                     if out_score[jmax] > confidence_threshold:
