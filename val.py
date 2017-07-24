@@ -68,7 +68,7 @@ class DetectorVal:
         self.fd.write(json.dumps(new_record) + "\n")
         self.fd.flush()
 
-    def summary(self, confidence_threshold, bbox_threshold=0.7, delete=True, extra=False):
+    def summary(self, confidence_threshold, bbox_threshold=0.5, delete=True, extra=False):
         """
         Retrieval summary
         :param confidence_threshold: only consider confidence > confidence_threshold results
