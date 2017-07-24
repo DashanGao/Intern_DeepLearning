@@ -5,11 +5,14 @@ import os
 import json
 import numpy as np
 
+
 class DetectorVal:
     def __init__(self, snapshot_format="val_snapshot"):
-
+        """
+        :param snapshot_format: temp file prefix, followed by time
+        """
         snap_list = glob.glob(snapshot_format + "*")
-        self.snapshot_file = snapshot_format + "_" + time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime()) + ".txt"
+        self.snapshot_file = snapshot_format + "_" + time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime()) + ".json"
         if snap_list:
             # need recover?
             print("Temp file found: recover? ignore?")
@@ -20,6 +23,7 @@ class DetectorVal:
             if select != '':
                 self.snapshot_file = snap_list[int(select) - 1]
         if os.path.isfile(self.snapshot_file):
+            # load snapshot file
             with open(self.snapshot_file, 'r') as f:
                 record = [json.loads(x) for x in f]
                 self.img_file = [x['item'] for x in record]
@@ -28,9 +32,24 @@ class DetectorVal:
         self.fd = open(self.snapshot_file, 'a')
 
     def need_exe(self, img_file):
+        """
+        check if need to execute this test case
+        :param img_file: test case id
+        :return: if need to execute
+        """
         return img_file not in self.img_file
 
     def record(self, img_file, gt_cls, gt_bbox, cls, bbox, score):
+        """
+        add one record to snapshot file
+        :param img_file: image id
+        :param gt_cls: image ground truth class name, a list for multi target
+        :param gt_bbox: image ground truth bbox, a 2D list, [[top left x, top left y, bottom right x, bottom right y], ...]
+        :param cls: net output class, a list
+        :param bbox: net output bbox, 2D lsit
+        :param score: net output confidence scores, a list
+        :return:
+        """
         gt_bbox = [[int(y)for y in x] for x in gt_bbox]
         bbox = [[int(y)for y in x] for x in bbox]
         gt_cls = [str(x) for x in gt_cls]
@@ -44,10 +63,25 @@ class DetectorVal:
         score = [score[x] for x in sorted_ind]
         new_record['out'] = [{'cls': cls[i], 'bbox': bbox[i], 'score': float(score[i])} for i in range(len(score))]
         new_record['gt'] = [{'cls': gt_cls[i], 'bbox': gt_bbox[i]} for i in range(len(gt_cls))]
+        # new_record = {'item' : img_file, 'out' : [{'cls' : x,
+        # 'bbox' : [x, x, x, x], 'score' : x}, ...], 'gt' : [(same as 'out')]}
         self.fd.write(json.dumps(new_record) + "\n")
         self.fd.flush()
 
     def summary(self, confidence_threshold, bbox_threshold=0.7, delete=True, extra=False):
+        """
+        Retrieval summary
+        :param confidence_threshold: only consider confidence > confidence_threshold results
+        :param bbox_threshold: only consider bbox overlap > bbox_threshold results
+        :param delete: if delete temp file after summary
+        :param extra: if need extra return info
+        :return: a diction which keys are class name and 1 extra 'mean' class,
+                 each key has attribute 'recall' and 'precision'
+                 {'cls1' : {'recall' : 0.99, 'precision' : 0.8},
+                 'cls2' : {'recall' : 0.86, 'precision' : 0.65}
+                 ...
+                 'mean' : {'recall' : 0.901, 'precision' : 0.685}}
+        """
         self.fd.close()
         with open(self.snapshot_file) as f:
             records = [json.loads(x) for x in f]
@@ -56,13 +90,15 @@ class DetectorVal:
             gt = records[i]['gt']
             out = records[i]['out']
             for j in range(len(gt)):
-                gt[j]['result_cls'] = -1
-                gt[j]['result_bbox'] = -1
+                gt[j]['result_cls'] = -1   # set to True if classify result is True
+                gt[j]['result_bbox'] = -1  # set to True if detection result is True
             if len(out) == 0:
+                # skip empty result
                 continue
             gt_bbox = np.array([x['bbox'] for x in gt], dtype=np.float)
             out_bbox = np.array([x['bbox'] for x in out], dtype=np.float)
             out_score = np.array([x['score'] for x in out], dtype=np.float)
+            # match
             for idx in range(len(gt)):
                 xmin = np.maximum(gt_bbox[idx, 0], out_bbox[:, 0])
                 ymin = np.maximum(gt_bbox[idx, 1], out_bbox[:, 1])
@@ -77,13 +113,20 @@ class DetectorVal:
                 ovmax = np.max(overlap)
                 jmax = np.argmax(overlap)
                 if ovmax > bbox_threshold:
+                    # bbox hit
                     gt[idx]['result_bbox'] = True
                     if out_score[jmax] > confidence_threshold:
                         if out[jmax]['cls'] == gt[idx]['cls']:
+                            # class hit
                             gt[idx]['result_cls'] = True
                         else:
                             gt[idx]['result_cls'] = out[jmax]['cls']
 
+        # results = {'cls1' : {'results': [{'item': imgid, 'result_cls': out class, 'result_bbox': out bbox}, ...],
+        #                      'relevant' : number gt, 'selected' : number check out, 'tp' : true positive,
+        #                      'recall', 'precision'}
+        #            'cls2' : ... ,
+        #            ...}
         results = {}
         for i in records:
             for j in i['gt']:
@@ -101,6 +144,7 @@ class DetectorVal:
             cls_result = results[i]['results']
             if len(cls_result) == 0:
                 print("Warning class " + str(i) + " don't have any relevant samples")
+                # skip background
                 ignore_list.append(i)
                 continue
             results[i]['relevant'] = len(cls_result)
