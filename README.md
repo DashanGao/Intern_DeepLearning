@@ -5,8 +5,59 @@ File List
 | -------|:------|
 |util.py | general usage |
 |plot.py | draw      |
+|val.py | detector test tool|
 Function
 =============
+val.py
+----------
+######class DetectorVal()
+```Python
+    def __init__(self, snapshot_format="val_snapshot"):
+        """
+        :param snapshot_format: temp file prefix, followed by time
+        """
+    def need_exe(self, img_file):
+        """
+        check if need to execute this test case
+        :param img_file: test case id
+        :return: if need to execute
+        """
+    def record(self, img_file, gt_cls, gt_bbox, cls, bbox, score):
+        """
+        add one record to snapshot file
+        :param img_file: image id
+        :param gt_cls: image ground truth class name, a list for multi target
+        :param gt_bbox: image ground truth bbox, a 2D list, [[top left x, top left y, bottom right x, bottom right y], ...]
+        :param cls: net output class, a list
+        :param bbox: net output bbox, 2D lsit
+        :param score: net output confidence scores, a list
+        :return: None
+        """
+    def summary(self, confidence_threshold, bbox_threshold=0.5, delete=True, extra=False):
+        """
+        Retrieval summary
+        :param confidence_threshold: only consider confidence > confidence_threshold results
+        :param bbox_threshold: only consider bbox overlap > bbox_threshold results
+        :param delete: if delete temp file after summary
+        :param extra: if need extra return info
+        :return: a diction which keys are class name and 1 extra 'mean' class,
+                 each key has attribute 'recall' and 'precision'
+                 {'cls1' : {'recall' : 0.99, 'precision' : 0.8},
+                 'cls2' : {'recall' : 0.86, 'precision' : 0.65}
+                 ...
+                 'mean' : {'recall' : 0.901, 'precision' : 0.685}}
+        """
+```
+Usage.   
+See example/val.py.example 
+```Python
+dv = DetectorVal()
+for item in list:
+    if df.need_exe(item):
+        # do something
+        dv.record(...)
+print(dv.summary())
+```
 plot.py
 ----------
 ######plot
@@ -25,7 +76,7 @@ def plot(file, x, y, xlim=None, ylim=None, name=None, align="top", save="img.png
     :return:
     """
 ```
-e.g.   
+Usage.   
 See example/ploy.py.example    
 ![Eexample img](/example/plt.png)
 util.py
