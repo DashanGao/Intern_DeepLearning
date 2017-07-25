@@ -64,21 +64,26 @@ plot.py
 ```Python
 def plot(file, x, y, xlim=None, ylim=None, name=None, align="top", save="img.png", xlabel="", ylabel="", title="", savetxt=None):
     """
-    :param file: txt file
-    :param x: [[str:pattern name, axis], [], [], ...], if pattern has more than one {num}, 
-              axis(optional) is needed to identify one {num} you want
-    :param y: same as x
+    Draw plot, multi source files, multi lines, optional smooth, xlabel, ylabel, legend, title, save line data to txt
+    Only need to provide txt pattern to extract data, e.g. - "Test net output #2: loss = {num}"
+    :param file_x_y_drop: tuple or list of tuple - (file, x, y, drop)
+                          [(file, [x1_pattern, ...], [y1_pattern, ...], [drop1, ...](optional)), ...]
+                          drop1 - a int, average adjacent drop1 points to smooth line, default no smooth
     :param xlim: x axis value limitation
     :param ylim: same as xlim
-    :param name: legend name, len(x) == len(y) == len(name)
+    :param legend: legend name, len(x) == len(y) == len(name)
     :param align: if lenth of x/y pare in extracted number not equal, align at top or bottom
-    :param save: save data to txt
-    :return:
+    :param xlabel: x label
+    :param ylabel: y label
+    :param title: image title
+    :param saveimg: str, if need to save image, default not save
+    :param savetxt: str. if need to save data in txt, default not save
+    :return: None
     """
 ```
 Usage.   
 See example/ploy.py.example    
-![Eexample img](/example/plt.png)
+![Eexample img](/example/figure.png)
 util.py
 ----------
 ######num_extractor
