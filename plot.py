@@ -82,6 +82,7 @@ def plot(file_x_y_drop, xlim=None, ylim=None, legend=None, align="top",
         if len(legend) != len(plots):
             raise ValueError("len(legend name) != len(plots) " + str(len(legend)) + " vs. " + str(len(plots)))
         plt.legend(legend, loc=0, ncol=1)
+    plt.grid(linewidth='0.3', linestyle='--')
     plt.xlim(xlim)
     plt.ylim(ylim)
     plt.xlabel(xlabel)
