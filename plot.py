@@ -103,7 +103,7 @@ def plot(file_x_y_drop, xlim=None, ylim=None, legend=None, align="top",
         l = ""
         for j in range(len(data)):
             if i >= len(data[j][0]):
-                l += "nan nan "
+                l += "null null "
                 continue
             l += str(data[j][0][i]) + " " + str(data[j][1][i]) + " "
         out.append(l.rstrip(" ") + "\n")
