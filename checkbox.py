@@ -1,8 +1,8 @@
 import cv2
 from util import parse_str as pstr
-img = cv2.imread(r"C:\Users\haozhang\Desktop\TJhvGpt7aviu65--5DUf6npgAP1B9fmk.jpg.jpg")
+img = cv2.imread(r"C:\Users\haozhang\Desktop\b0cc9407b98ed5094477725b3025d9930a92573c.jpg")
 
-with open(r"C:\Users\haozhang\Desktop\TJhvGpt7aviu65--5DUf6npgAP1B9fmk.txt") as f:
+with open(r"C:\Users\haozhang\Desktop\b0cc9407b98ed5094477725b3025d9930a92573c.txt") as f:
     lines = f.readlines()
 p = pstr(lines)
 for i in p:
