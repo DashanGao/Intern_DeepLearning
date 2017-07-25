@@ -1,15 +1,16 @@
 from dltool.plot import plot
 import numpy as np
 
-file = r"C:\Users\haozhang\Desktop\furniture_v1.txt"
+file1 = r"C:\Users\haozhang\Desktop\inception_v2_clear_0.out"
+file2 = r"C:\Users\haozhang\Desktop\inception_v2_allft_0.out"
+file3 = r"C:\Users\haozhang\Desktop\inception_v2_img.out"
 
-pstep = r"Iteration {num}, loss = {num}"
-ploss = r"Train net output #2: loss3/loss3 = {num}"
-pteststep = r"Iteration {num}, Testing net"
-ptestloss = r"Test net output #0: loss1/loss1 = {num}"
-ptestaccr = "Test net output #7: loss3/top-1 = {num}"
-
-
-
-plot(file, [[pstep, [0]], pteststep, pteststep], [ploss, ptestloss, ptestaccr],
-     xlim=(0, 10000), name=["train", "test", "acc"], align="top", savetxt="save.txt")
+test_step_pattern = "Iteration {num}, Testing net"
+test_loss_pattern = "Test net output #2: loss = {num}"
+train_step_pattern = "Iteration {num}, loss = {num}"
+train_loss_pattern = "Train net output #0: loss = {num}"
+t = [(file1, [[train_step_pattern, [0]], test_step_pattern], [train_loss_pattern, test_loss_pattern]),
+     (file2, [[train_step_pattern, [0]], test_step_pattern], [train_loss_pattern, test_loss_pattern], [20, 1]),
+     (file3, [[train_step_pattern, [0]], test_step_pattern], [train_loss_pattern, test_loss_pattern], [20, 1])]
+legend = ["train model A", "test model A", "train model B", "test model B", "train model C", "test model C"]
+plot(t, legend=legend, align="top", saveimg="figure.png", savetxt="figure_data.txt", xlabel="step", ylabel="loss", title="test figure")
