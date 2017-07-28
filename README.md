@@ -73,7 +73,8 @@ def grid(data, saveimg, x_label=[], y_label=[], title=None):
     :return: None
     """
 ```
-![Eexample img](/example/confusion_matrix.png)
+![Eexample img](/example/confusion_matrix1.png)
+![Eexample img](/example/confusion_matrix2.png)
 ######plot
 ```Python
 def plot(file, x, y, xlim=None, ylim=None, name=None, align="top", save="img.png", xlabel="", ylabel="", title="", savetxt=None):
