@@ -11,16 +11,16 @@ class DetectorVal:
         """
         :param snapshot_format: temp file prefix, followed by time
         """
-        snap_list = glob.glob(snapshot_format + "*")
+        snap_list = glob.glob(snapshot_format + "*.json")
         self.snapshot_file = snapshot_format + "_" + time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime()) + ".json"
         if snap_list:
             # need recover?
             print("Temp file found: recover? ignore?")
-            print("0 - Ignore")
+            print("0 - Create new")
             for idx, item in enumerate(snap_list):
                 print(str(idx + 1) + " - " + item)
             select = raw_input("Which? Input : (0)")
-            if select != '':
+            if select != '' and select != '0':
                 self.snapshot_file = snap_list[int(select) - 1]
         if os.path.isfile(self.snapshot_file):
             # load snapshot file
@@ -177,12 +177,33 @@ class DetectorVal:
                 ret[i] = {}
                 ret[i]['recall'] = results[i]['recall']
                 ret[i]['precision'] = results[i]['precision']
-        ret['mean'] = {}
-        ret['mean']['recall'] = m_recall
-        ret['mean']['precision'] = m_precision
+                ret[i]['relevant'] = results[i]['relevant']
+        ret['_mean'] = {}
+        ret['_mean']['recall'] = m_recall
+        ret['_mean']['precision'] = m_precision
+
+        # calc distribution map
+        cls2idx = {}
+        src_cls = [x for x in results.keys()]
+        dst_cls = src_cls + ["_bg_"]
+        for idx, item in enumerate(results.keys()):
+            cls2idx[item] = idx
+        dist_mat = np.zeros((len(dst_cls), len(src_cls)), dtype=np.int32)
+        for i in src_cls:
+            for j in results[i]['results']:
+                if j['result_cls'] == True:
+                    dist_mat[cls2idx[i], cls2idx[i]] += 1
+                elif j['result_cls'] == -1:
+                    dist_mat[-1, cls2idx[i]] += 1
+                else:
+                    dist_mat[cls2idx[j['result_cls']],  cls2idx[i]] += 1
+        ret_dist_mat = []
+        ret_dist_mat.append(src_cls)
+        for i in dist_mat:
+            ret_dist_mat.append(list(i))
 
         if delete:
             os.remove(self.snapshot_file)
         if extra:
-            return results, ret
-        return ret
+            return results, ret, ret_dist_mat
+        return ret, ret_dist_mat
