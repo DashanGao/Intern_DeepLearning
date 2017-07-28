@@ -4,7 +4,7 @@ File List
 | File   | Use     |
 | -------|:------|
 |util.py | general usage |
-|plot.py | draw      |
+|figure.py | draw      |
 |val.py | detector test tool|
 Function
 =============
@@ -58,8 +58,22 @@ for item in list:
         dv.record(...)
 print(dv.summary())
 ```
-plot.py
+figure.py
 ----------
+######gird
+```Python
+def grid(data, saveimg, x_label=[], y_label=[], title=None):
+    """
+    draw a grid distribution figure(confusion matrix), see example/gird.png
+    :param data: a 2D numpy array you want to draw on figure
+    :param saveimg: save image path
+    :param x_label: a sequential x label string list, len(x_label) == data.shape[1](column)
+    :param y_label: a sequential x label string list, len(y_label) == data.shape[0](row)
+    :param title: title
+    :return: None
+    """
+```
+![Eexample img](/example/confusion_matrix.png)
 ######plot
 ```Python
 def plot(file, x, y, xlim=None, ylim=None, name=None, align="top", save="img.png", xlabel="", ylabel="", title="", savetxt=None):
@@ -83,7 +97,7 @@ def plot(file, x, y, xlim=None, ylim=None, name=None, align="top", save="img.png
 ```
 Usage.   
 See example/ploy.py.example    
-![Eexample img](/example/figure.png)
+![Eexample img](/example/plot.png)
 util.py
 ----------
 ######num_extractor
