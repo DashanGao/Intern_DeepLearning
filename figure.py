@@ -1,8 +1,21 @@
 
 def grid(data, saveimg, x_label=[], y_label=[], title=None):
+    """
+    draw a grid distribution figure, see example/gird.png
+    :param data: a 2D numpy array you want to draw on figure
+    :param saveimg: save image path
+    :param x_label: a sequential x label string list, len(x_label) == data.shape[1](column)
+    :param y_label: a sequential x label string list, len(y_label) == data.shape[0](row)
+    :param title: title
+    :return: None
+    """
     import matplotlib.pyplot as plt
     import numpy as np
-        
+
+    if len(x_label) != data.shape[1] or len(y_label) != data.shape[0]:
+        raise ValueError("Data and label size mismatch, but "
+                         "label_shape(x, y) == (" + str(len(x_label)) + ", " + str(len(x_label)) +
+                         "), data_shape = " + str(data.shape))
     data = 1 - data
     fig, ax = plt.subplots()
     ax.imshow(data, cmap=plt.cm.gray, interpolation='nearest')
