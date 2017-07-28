@@ -1,0 +1,15 @@
+from dltool.multi_thread import MultiThreadWrap
+import time
+def mutex(index):
+    print(str(index) + " mutex sleep start")
+    time.sleep(1)
+    print(str(index) + " mutex sleep end")
+
+def work_func(index):
+    print(str(index) + " paralell work")
+    time.sleep(2)
+
+work = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+mtr = MultiThreadWrap(10, work, mutex, work_func)
+mtr.start()
+print("exit")
