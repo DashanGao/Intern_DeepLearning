@@ -64,7 +64,7 @@ figure.py
 ```Python
 def grid(data, saveimg, x_label=[], y_label=[], title=None):
     """
-    draw a grid distribution figure(confusion matrix), see example/gird.png
+    draw a grid distribution figure(confusion matrix)
     :param data: a 2D numpy array you want to draw on figure
     :param saveimg: save image path
     :param x_label: a sequential x label string list, len(x_label) == data.shape[1](column)
