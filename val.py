@@ -132,7 +132,6 @@ class DetectorVal:
             for j in i['gt']:
                 if j['cls'] not in results.keys():
                     results[j['cls']] = {'results': []}
-
         for i in records:
             for j in i['gt']:
                 results[j['cls']]['results'].append({'item': i['item'],
