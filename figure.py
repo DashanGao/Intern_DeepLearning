@@ -6,6 +6,7 @@ def grid(data, saveimg, x_label=[], y_label=[], size=None, title=None):
     :param saveimg: save image path
     :param x_label: a sequential x label string list, len(x_label) == data.shape[1](column)
     :param y_label: a sequential x label string list, len(y_label) == data.shape[0](row)
+    :param size: tuple - (width, height)
     :param title: title
     :return: None
     """
