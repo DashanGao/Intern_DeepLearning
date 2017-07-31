@@ -1,7 +1,21 @@
 import random
 import numpy as np
 import math
+
+
 def get_train_val(cls2list, ratio, loop=0, prefix=None):
+    """
+    create prefix_train_list.txt and prefix_val_list.txt for balanced data.
+    It doesn't work well if your data is ultra imbalance and in multi label cases.
+    No overlap between val list and train list
+    :param cls2list: a dict {class name : info list(whatever you want to write to the file), ...}
+                            {"cls1" : ["img1.png", "img2.png", ...],
+                            "cls1" : ["img1.png", "img2.png", ...], ...}
+    :param ratio: 0 ~ 1, percentage of val data
+    :param loop: balance loop, guarantee 100% data usage by default
+    :param prefix: file prefix
+    :return: None
+    """
     if 0 < ratio < 1 is False:
         raise ValueError("ratio should be 0 ~ 1")
     if loop < 0:
@@ -33,7 +47,8 @@ def get_train_val(cls2list, ratio, loop=0, prefix=None):
             num_match = True
             print("val_list " + str(len(val_list)))
         if ratio == 0:
-            print("Warning: your dataset seems too small, swith to global random select, maybe some class will not be in val list")
+            print("Warning: your dataset seems too small, swith to global random select, "
+                  "maybe some class will not be in val list")
     # global random select
     if num_match is not True:
         val_list = random.sample(info_sum.keys(), int(ratio_init * len(info_sum)))
@@ -75,7 +90,8 @@ def get_train_val(cls2list, ratio, loop=0, prefix=None):
         train_list += batch
     train_sum_num = len(info_sum.keys())
     train_use = np.sum(np.array(info_sum.values()))
-    print("train list usage " + str(float(train_use) / float(train_sum_num)) + " (" + str(train_use) + " / " + str(train_sum_num) + ")")
+    print("train list usage " + str(float(train_use) / float(train_sum_num)) +
+          " (" + str(train_use) + " / " + str(train_sum_num) + ")")
 
     if prefix is not None:
         with open(prefix + "_val_list.txt", "w") as f:
