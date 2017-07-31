@@ -1,5 +1,5 @@
 
-def grid(data, saveimg, x_label=[], y_label=[], title=None):
+def grid(data, saveimg, x_label=[], y_label=[], size=None, title=None):
     """
     draw a grid distribution figure, see example/gird.png
     :param data: a 2D numpy array you want to draw on figure
@@ -18,7 +18,14 @@ def grid(data, saveimg, x_label=[], y_label=[], title=None):
                          "), data_shape = " + str(data.shape))
     data = 1 - data
     fig, ax = plt.subplots()
+    if size is not None:
+        fig.set_size_inches(size[0], size[1])
+    
     ax.imshow(data, cmap=plt.cm.gray, interpolation='nearest')
+
+    for i in range(0, len(x_label), 5):   
+        plt.axvline(x=i, linestyle='-', color='black', linewidth=2, zorder=2)
+        plt.axhline(y=i, linestyle='-', color='black', linewidth=2, zorder=2)
 
     ax.set_xticks(np.arange(len(x_label)))
     ax.xaxis.tick_top()
@@ -30,7 +37,7 @@ def grid(data, saveimg, x_label=[], y_label=[], title=None):
     plt.grid(linewidth='0.3', linestyle='-')
     plt.title(title, y=-0.1)
     plt.tight_layout()
-    plt.savefig(saveimg)
+    plt.savefig(saveimg, dpi=100)
 
 def plot(file_x_y_drop, xlim=None, ylim=None, legend=None, align="top",
          xlabel="", ylabel="", title="", saveimg=None, savetxt=None):
