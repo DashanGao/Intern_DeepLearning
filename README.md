@@ -7,8 +7,27 @@ File List
 |figure.py | draw      |
 |val.py | detector test tool|
 |multi_thread.py| multi thread wrapper|
+|balance.py|balance train val data|
 Function
 =============
+balance.py
+-----------------
+#####get_train_val
+```Python
+def get_train_val(cls2list, ratio, loop=0, prefix=None):
+"""
+    create prefix_train_list.txt and prefix_val_list.txt for balanced data.
+    It doesn't work well if your data is ultra imbalance and in multi label cases.
+    No overlap between val list and train list
+    :param cls2list: a dict {class name : info list(whatever you want to write to the file), ...}
+                            {"cls1" : ["img1.png", "img2.png", ...],
+                            "cls1" : ["img1.png", "img2.png", ...], ...}
+    :param ratio: 0 ~ 1, percentage of val data
+    :param loop: balance loop, guarantee 100% data usage by default
+    :param prefix: file prefix
+    :return: None
+    """
+```
 multi_thread.py
 ---------------------
 #####class MultiThreadWrap()
