@@ -6,8 +6,37 @@ File List
 |util.py | general usage |
 |figure.py | draw      |
 |val.py | detector test tool|
+|multi_thread.py| multi thread wrapper|
 Function
 =============
+multi_thread.py
+---------------------
+#####class MultiThreadWrap()
+
+```Python
+"""
+asynchronized blocked multi thread with mutex lock wrapper, you can use it for download
+1. set a work list
+2. pop one item as i from list
+3. call work_func(i)
+4. call mutex_func(i)
+5. go to (2) until work_list is empty
+6. return None
+"""
+def __init__(self, num_thread, work_list, mutex_func, work_func):
+    """
+    :param num_thread: thread number
+    :param work_list: also param list, pop 1 item from work list and pass it to mutex_func and work_func
+    :param mutex_func: do something must be serial, typically write log file
+    :param work_func: parallel work function
+    """
+def start(self):
+    """
+    call it to start asynchromous multi thread with block
+    :return: return None after all threads have exit
+    """
+```
+e.g. see example/multi_thread.py.example
 val.py
 ----------
 ######class DetectorVal()
