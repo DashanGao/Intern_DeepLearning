@@ -1,7 +1,7 @@
 import threading
 
 
-    class MultiThreadWrap():
+class MultiThreadWrap():
     """
     asynchronized blocked multi thread with mutex lock wrapper, you can use it for download
     1. set a work list
