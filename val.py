@@ -139,6 +139,9 @@ class DetectorVal:
                                          'result_bbox': j['result_cls']})
 
         ignore_list = []
+        global_tp = 0
+        global_relevant = 0
+        global_selected = 0
         for i in results:
             cls_result = results[i]['results']
             if len(cls_result) == 0:
@@ -161,6 +164,13 @@ class DetectorVal:
             results[i]['recall'] = float(tp) / float(results[i]['relevant'])
             results[i]['precision'] = float(tp) / float(selected) if selected != 0 else 0.
 
+            global_tp += tp
+            global_relevant += results[i]['relevant']
+            global_selected += selected
+
+        
+
+        # class mean
         m_recall = 0.
         m_precision = 0.
         for i in results:
@@ -180,6 +190,10 @@ class DetectorVal:
         ret['_mean'] = {}
         ret['_mean']['recall'] = m_recall
         ret['_mean']['precision'] = m_precision
+
+        ret["_global"] = {}
+        ret["_global"]["recall"] = float(global_tp) / float(global_relevant)
+        ret["_global"]["precision"] = float(global_tp) / float(global_selected)
 
         # calc distribution map
         cls2idx = {}

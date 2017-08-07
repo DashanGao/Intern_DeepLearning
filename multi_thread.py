@@ -34,10 +34,15 @@ class MultiThreadWrap():
             self.lock = lock
 
         def run(self):
-            while self.work_list:
+            while True:
+
                 self.lock.acquire()
+                if len(self.work_list) == 0:
+                    self.lock.release()
+                    break
                 i = self.work_list.pop()
                 self.lock.release()
+
                 self.work_func(i)
 
                 self.lock.acquire()
