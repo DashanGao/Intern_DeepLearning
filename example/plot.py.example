@@ -1,4 +1,4 @@
-from dltool.plot import plot
+from dltool.figure import plot
 import numpy as np
 
 file1 = r"C:\Users\haozhang\Desktop\inception_v2_clear_0.out"
