@@ -13,7 +13,7 @@ Script
 =============
 download.py
 -----------------
-usage: python download.py --json test.json --save_root temp/ --url_path hit_input/qls   
+usage: python download.py --json test.json --save_root temp/ --url_path hit_input/q   
 --json json file   
 --save_root where to save   
 --url_path path in json   
