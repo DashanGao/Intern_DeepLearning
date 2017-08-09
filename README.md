@@ -8,7 +8,18 @@ File List
 |val.py | detector test tool|
 |multi_thread.py| multi thread wrapper|
 |balance.py|balance train val data|
-Function
+|download.py|munti thread download from json|
+Script
+=============
+download.py
+-----------------
+usage: python download.py --json test.json --save_root temp/ --url_path hit_input/qls   
+--json json file   
+--save_root where to save   
+--url_path path in json   
+{"_id":{"$oid":"59017b6f51bb9800111686cb"},"hit_id":"e569163b34e9d7784fe9c2b7c91e3e39e17c5dbf.jpg","hit_input":{"item_id":"10154565059","category":"pendant_lamp","type":"detail_images","q":"http://styleai-shopping.oss-cn-beijing.aliyuncs.com/e569163b34e9d7784fe9c2b7c91e3e39e17c5dbf.jpg"},"hit_result":[{"width":0.7476280834914611,"top":0.006818181818181818,"height":0.7840909090909091,"tag":"pendant_lamp","left":0.12333965844402277}]
+
+Lib
 =============
 balance.py
 -----------------
