@@ -33,5 +33,5 @@ with open(source_file, "r") as feat:
             FE = np.vstack((FE, map(eval, fes[0].strip().split()[1:])))
 if FE is not None:
     FN = np.load(dest_file)
-    FN = np.vstack(FN, FE)
+    FN = np.vstack((FN, FE))
     np.save(dest_file, FN)
