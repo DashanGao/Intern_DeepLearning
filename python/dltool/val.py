@@ -5,9 +5,183 @@ import os
 import json
 import numpy as np
 
+class ClassifyerVal:
+    def __init__(self, snapshot_format="cls_val_snapshot"):
+        """
+        :param snapshot_format: temp file prefix, followed by time
+        """
+        snap_list = glob.glob(snapshot_format + "*.json")
+        self.snapshot_file = snapshot_format + "_" + time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime()) + ".json"
+        if snap_list:
+            # need recover?
+            print("Temp file found: recover? ignore?")
+            print("0 - Create new")
+            for idx, item in enumerate(snap_list):
+                print(str(idx + 1) + " - " + item)
+            select = raw_input("Which? Input : (0)")
+            if select != '' and select != '0':
+                self.snapshot_file = snap_list[int(select) - 1]
+        if os.path.isfile(self.snapshot_file):
+            # load snapshot file
+            with open(self.snapshot_file, 'r') as f:
+                record = [json.loads(x) for x in f]
+                self.img_file = [x['item'] for x in record]
+        else:
+            self.img_file = []
+        self.fd = open(self.snapshot_file, 'a')
+
+    def need_exe(self, img_file):
+        """
+        check if need to execute this test case
+        :param img_file: test case id
+        :return: if need to execute
+        """
+        return img_file not in self.img_file
+
+    def record(self, img_file, gt_cls, cls):
+        """
+        add one record to snapshot file
+        :param img_file: image id
+        :param gt_cls: image ground truth class name, a list for multi target
+        :param cls: net output class, a list
+        :return:
+        """
+        new_record = {}
+        new_record['item'] = img_file
+        new_record['out'] = {'cls': cls}
+        new_record['gt'] = {'cls': gt_cls}
+        # new_record = {'item' : img_file, 'out' : [{'cls' : x,
+        # 'bbox' : [x, x, x, x], 'score' : x}, ...], 'gt' : [(same as 'out')]}
+        self.fd.write(json.dumps(new_record) + "\n")
+        self.fd.flush()
+
+    def summary(self, confidence_threshold, bbox_threshold=0.5, delete=True, extra=False):
+        """
+        Retrieval summary
+        :param confidence_threshold: only consider confidence > confidence_threshold results
+        :param bbox_threshold: only consider bbox overlap > bbox_threshold results
+        :param delete: if delete temp file after summary
+        :param extra: if need extra return info
+        :return: a diction which keys are class name and 1 extra 'mean' class,
+                 each key has attribute 'recall' and 'precision'
+                 {'cls1' : {'recall' : 0.99, 'precision' : 0.8},
+                 'cls2' : {'recall' : 0.86, 'precision' : 0.65}
+                 ...
+                 '_mean' : {'recall' : 0.901, 'precision' : 0.685},
+                 '_global' : {'recall' : 0.950, 'precision' : 0.950}}
+        """
+        self.fd.close()
+        with open(self.snapshot_file) as f:
+            records = [json.loads(x) for x in f]
+
+        for i in xrange(len(records)):
+            gt = records[i]['gt']
+            out = records[i]['out']
+            gt['result_cls'] = -1   # set to True if classify result is True
+            if out['cls'] == gt['cls']:
+                    # class hit
+                gt['result_cls'] = True
+            else:
+                gt['result_cls'] = out['cls']
+        # results = {'cls1' : {'results': [{'item': img_id, 'result_cls': out class}, ...],
+        #                      'relevant' : number gt, 'selected' : number check out, 'tp' : true positive,
+        #                      'recall', 'precision'}
+        #            'cls2' : ... ,
+        #            ...}
+        results = {}
+        for i in records:
+            for j in [i['gt'], i['out']]:
+                if j['cls'] not in results.keys():
+                    results[j['cls']] = {'results': []}
+        for i in records:
+            results[i['gt']['cls']]['results'].append({'item': i['item'],
+                                         'result_cls': i['gt']['result_cls']})
+        ignore_list = []
+        global_tp = 0
+        global_relevant = 0
+        global_selected = 0
+        for i in results:
+            cls_result = results[i]['results']
+            if len(cls_result) == 0:
+                print("Warning class " + str(i) + " don't have any relevant samples")
+                # skip background
+                ignore_list.append(i)
+                continue
+            results[i]['relevant'] = len(cls_result)
+            tp = 0
+            for j in cls_result:
+                if j['result_cls'] is True:
+                    tp += 1
+            results[i]['tp'] = tp
+            selected = 0
+            for j in records:
+                if j['out']['cls'] == i:
+                    selected += 1
+            results[i]['selected'] = selected
+            results[i]['recall'] = float(tp) / float(results[i]['relevant'])
+            results[i]['precision'] = float(tp) / float(selected) if selected != 0 else 0.
+
+            global_tp += tp
+            global_relevant += results[i]['relevant']
+            global_selected += selected
+
+        print(global_tp)
+        print(global_relevant)
+        print(global_selected)
+
+        # class mean
+        m_recall = 0.
+        m_precision = 0.
+        for i in results:
+            if i not in ignore_list:
+                m_recall += results[i]['recall']
+                m_precision += results[i]['precision']
+        m_recall = m_recall / (len(results.keys()) - len(ignore_list))
+        m_precision = m_precision / (len(results.keys()) - len(ignore_list))
+
+        ret = {}
+        for i in results:
+            if i not in ignore_list:
+                ret[i] = {}
+                ret[i]['recall'] = results[i]['recall']
+                ret[i]['precision'] = results[i]['precision']
+                ret[i]['relevant'] = results[i]['relevant']
+        ret['_mean'] = {}
+        ret['_mean']['recall'] = m_recall
+        ret['_mean']['precision'] = m_precision
+
+        ret["_global"] = {}
+        ret["_global"]["recall"] = float(global_tp) / float(global_relevant)
+        ret["_global"]["precision"] = float(global_tp) / float(global_selected)
+
+        # calc distribution map
+        cls2idx = {}
+        src_cls = [x for x in results.keys()]
+        dst_cls = src_cls
+        for idx, item in enumerate(results.keys()):
+            cls2idx[item] = idx
+        dist_mat = np.zeros((len(dst_cls), len(src_cls)), dtype=np.int32)
+        for i in src_cls:
+            for j in results[i]['results']:
+                if j['result_cls'] == True:
+                    dist_mat[cls2idx[i], cls2idx[i]] += 1
+                elif j['result_cls'] == -1:
+                    dist_mat[-1, cls2idx[i]] += 1
+                else:
+                    dist_mat[cls2idx[j['result_cls']],  cls2idx[i]] += 1
+        ret_dist_mat = []
+        ret_dist_mat.append(src_cls)
+        for i in dist_mat:
+            ret_dist_mat.append(list(i))
+
+        if delete:
+            os.remove(self.snapshot_file)
+        if extra:
+            return ret, ret_dist_mat, results
+        return ret, ret_dist_mat
 
 class DetectorVal:
-    def __init__(self, snapshot_format="val_snapshot"):
+    def __init__(self, snapshot_format="det_val_snapshot"):
         """
         :param snapshot_format: temp file prefix, followed by time
         """
@@ -218,5 +392,5 @@ class DetectorVal:
         if delete:
             os.remove(self.snapshot_file)
         if extra:
-            return results, ret, ret_dist_mat
+            return ret, ret_dist_mat, results
         return ret, ret_dist_mat
