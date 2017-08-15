@@ -1,0 +1,15 @@
+from dltool.val import DetectorVal
+def exe(i):
+    return None
+val_handle = DetectorVal()
+lists = [["file1", [1], [[0, 0, 100, 100]], [1], [[0, 0, 100, 80]], [0.9]],
+         ["file2", [2], [[10, 11, 12, 13]], [2, 1], [[10, 11, 12, 13], [0, 1, 2, 3]], [0.8, 0.9]],
+         ["file3", [3], [[10, 11, 12, 13]], [3], [[10, 11, 12, 13]], [0.7]],
+         ["file4", [4], [[10, 11, 12, 13]], [4], [[10, 11, 12, 13]], [0.6]],
+         ["file5", [5], [[10, 11, 12, 13]], [5], [[10, 11, 12, 13]], [0.5]],
+         ["file6", [2], [[10, 11, 12, 13]], [3], [[10, 11, 12, 13]], [0.8]]]
+for idx, i in enumerate(lists):
+    if val_handle.need_exe(i[0]):
+        exe(i[0])
+        val_handle.record(lists[idx][0], lists[idx][1], lists[idx][2], lists[idx][3], lists[idx][4], lists[idx][5])
+print(val_handle.summary(0.4))
