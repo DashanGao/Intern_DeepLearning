@@ -1,20 +1,20 @@
 import threading
-import time
+# import time
 import Queue
 import os
 import email_notifier as em
 from multiprocessing import cpu_count
 import json
-import subprocess
 
-'Config ----------------------------------------------'
-src_file = "pailitao_train_list_108w_to_end.txt"
-db_name = "CCCV_pailitao_img_query_108w_to_end.json"
+# 'Config ----------------------------------------------'
+# src_file = "pailitao_train_list_108w_to_end.txt"
+src_file = "pailitao_train_list_.txt"
+db_name = "CCCV_pailitao_img_query_.json"
 thread_num = cpu_count() * 2
-
+em_title = ""
 # thread_num = 1
 
-'-----------------------------------------------------'
+# '-----------------------------------------------------'
 
 exit_flag = 0
 
@@ -37,10 +37,10 @@ def process(threadID):
     line3 = record_queue.get()
     line4 = record_queue.get()
 
-    q_size = record_queue.qsize()
+    # q_size = record_queue.qsize()
     queue_lock.release()
-    if q_size % 100 == 0:
-        print q_size
+    # if q_size % 100 == 0:
+    #     print q_size
 
     # # 2. Check if record exists
     # img1 = line1.strip().split()[0]
@@ -98,9 +98,12 @@ def query(line, port):
     print img, '      img___'
     cmd = "curl -X POST -F \"search=@/opt/data-safe/users/terrencege/" + img + "\" 10.20.3.12:"+port+"/service/detect/cloth"
     # cmd = "curl -X POST -F \"search=@/home/gaodashan/Pictures/" + img + "\" 10.20.3.12:8080/service/detect/cloth"
+    s = os.popen(cmd).read()
 
-    s = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    result = json.loads(s.communicate()[0])["boxes_detected"]
+    # s = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    # result = json.loads(s.communicate()[0])["boxes_detected"]
+    result = eval(s)["boxes_detected"]
+
     cates = [i[u"type"] for i in result]
     dic = {"category": cates, "doxes_detexted": result, "label": label}
     print dic
@@ -144,7 +147,7 @@ if __name__ == '__main__':
     while not record_queue.empty():
         pass
     exit_flag = 1
-    em.send("Local img query finish", "108W to end")
+    em.send("Local img query finish", em_title)
     for t in threads:
         t.join()
 
