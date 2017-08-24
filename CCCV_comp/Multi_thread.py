@@ -10,7 +10,7 @@ import json
 # src_file = "pailitao_train_list_108w_to_end.txt"
 src_file = "pailitao_train_list_.txt"
 db_name = "CCCV_pailitao_img_query_.json"
-thread_num = cpu_count() * 2
+thread_num = cpu_count()
 em_title = ""
 # thread_num = 1
 
@@ -63,11 +63,11 @@ def process(threadID):
     # file_lock.release()
 
     # 3. Process data
-    port = threadID % 4
-    if port == 3:
+    port = threadID % 3
+    if port == 2:
         port = 8080
     else:
-        port = port + 8083
+        port = port + 8085
     dic1 = query(line1, str(port))
     dic2 = query(line2, str(port))
     dic3 = query(line3, str(port))
